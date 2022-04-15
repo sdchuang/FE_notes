@@ -73,3 +73,21 @@ function findDiagonalOrder(matrix) {
   }
   return nums;
 }
+
+
+/**
+ * 数组去重 要求时间复杂度 O(n)
+ * @param {number[]} nums
+ */
+function removeDuplicates(arr) {
+  let map = new Map()
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i];
+    if(map.get(item)){
+      arr.splice(i, 1)
+    }else{
+      map.set(item, true)
+    }
+  }
+  return arr
+}

@@ -10,6 +10,7 @@ function shallowClone(obj) {
   return newObj;
 }
 
+
 /**
  * 深拷贝
  */
@@ -103,4 +104,39 @@ const deepClone = (x) => {
 }
 
 
+/**
+ * 实现异步请求重试方法 fun(request, times)
+ */
+// 终版
+function fun(request, times) {
+  return new Promise((resolve, reject) => {
+    request.then(resolve).catch(err => {
+      if (times > 0) {
+        fun(request, times - 1).then(resolve).catch(reject);
+      } else {
+        reject(err);
+      }
+    });
+  });
+}
 
+// 实现
+function fun (request, times) {
+  return new Promise((resolve, reject) => {
+    let n = times
+    let newReq = function () {
+      request()
+        .then(res => {
+          resolve(res)
+        })
+        .catch(err => {
+          if (--n > 0) {
+            newReq()
+          } else {
+            reject(err)
+          }
+        })
+    }
+    newReq()
+  })
+}
