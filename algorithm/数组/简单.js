@@ -81,12 +81,14 @@ function findDiagonalOrder(matrix) {
  */
 function removeDuplicates(arr) {
   let map = new Map()
-  for (let i = 0; i < arr.length; i++) {
+  for (let i = 0; i < arr.length;) {
     const item = arr[i];
     if(map.get(item)){
       arr.splice(i, 1)
     }else{
       map.set(item, true)
+      // 截取的时候不累加
+      i++
     }
   }
   return arr
