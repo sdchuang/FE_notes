@@ -76,6 +76,7 @@ Function.prototype.bind = function (context, ...args) {
 
 
 /**
+ * todo
  * 继承
  */
 /**
@@ -164,3 +165,19 @@ function inheritPrototype(subType, superType) {
   prototype.constructor = subType; // 增强对象 
   subType.prototype = prototype; // 赋值对象
 }
+
+/**
+ * 实现instanceof
+ */
+function Instanceof(left, right) {
+  let leftVal = Object.getPrototypeOf(left); //获取左侧对象的原型 __proto__
+  const rightVal = right.prototype;
+
+  while (leftVal !== null) {
+    if (leftVal === rightVal)
+        return true;
+    leftVal = Object.getPrototypeOf(leftVal);
+  }
+  return false;
+}
+

@@ -41,7 +41,6 @@ function deepClone(obj) {
 }
 // 完整版
 // 解决循环引用
-// 函数引用
 function deepClone(obj, map = new Map()) {
   var newObj = Array.isArray(obj) ? [] : {};
   // 如果是map中存在，直接返回
@@ -63,6 +62,151 @@ function deepClone(obj, map = new Map()) {
   }
   return newObj;
 }
+
+/**
+ * 实现深 clone
+*/
+const BASE_TYPE = ['number', 'string', 'boolean', 'undefined', 'symbol']
+const OBJECT_BASE_TYPE = ['[object String]', '[object Number]', '[object Boolean]']
+
+// TODO 函数类型
+// Symbol 作为 key 的情况
+
+// map 用于缓存结果，并防止循环引用递归报错
+function deepClone (target, map = new WeakMap()) {
+ // 基础类型直接返回
+ if (BASE_TYPE.includes(typeof target)) {
+   return target
+ }
+ // null 情况特殊处理
+ if (target === null) {
+   return target
+ }
+
+ // 下面是 typeof 为 object 的情况
+ let result // 结果
+ if (map.has(target)) {
+   return map.get(target)
+ }
+
+ // 数组
+ if (Object.prototype.toString.call(target) === '[object Array]') {
+   result = new target.constructor
+   map.set(target, result)
+   result = target.map(item => deepClone(item, map)) // TODO 数组有额外的属性key
+   return result
+ }
+ // 对象
+ if (Object.prototype.toString.call(target) === '[object Object]') {
+   result = new target.constructor
+   map.set(target, result)
+   Object.keys(target).forEach(key => {
+     result[key] = deepClone(target[key], map)
+   })
+   return result
+ }
+ // Map
+ if (Object.prototype.toString.call(target) === '[object Map]') {
+   result = new target.constructor
+   map.set(target, result)
+   target.forEach((item, key) => {
+     result.set(key, deepClone(item), map)
+   })
+   return result
+ }
+ // Set
+ if (Object.prototype.toString.call(target) === '[object Set]') {
+   result = new target.constructor
+   map.set(target, result)
+   target.forEach((item) => {
+     result.add(deepClone(item), map)
+   })
+   return result
+ }
+ // 其他 包装对象
+ if (OBJECT_BASE_TYPE.includes(Object.prototype.toString.call(target))) {
+   result = new target.constructor(target)
+   return result
+ }
+ // Date
+ if (Object.prototype.toString.call(target) === '[object Date]') {
+   result = new target.constructor(target)
+   return result
+ }
+ // Error
+ if (Object.prototype.toString.call(target) === '[object Error]') {
+   result = new target.constructor(target.message)
+   return result
+ }
+ // Symbol
+ if (Object.prototype.toString.call(target) === '[object Symbol]') {
+   result = Object(Symbol.prototype.valueOf.call(target))
+   return result
+ }
+ // RegExp 正则
+ if (Object.prototype.toString.call(target) === '[object RegExp]') {
+   let flagReg = /\w*$/
+   let flag = flagReg.exec(target.toString())[0]
+   // 第一个参数是正则表达式字符串形式，第二个是flag
+   result = new target.constructor(target.source, flag)
+   result.lastIndex = targe.lastIndex
+   return result
+ }
+}
+
+// ------------------ 测试 ------------------
+
+// number
+// let source = 12
+
+// string
+// let source = 'nihao'
+
+// boolean
+// let source = true
+
+// undefined
+// let source = undefined
+
+// null (是对象)
+// let source = null
+
+// symbol
+let source = Symbol('111')
+
+// 数组
+// let source = [1, 2, [3.1, 3.2]]
+
+// Map
+// let source = new Map([['a', 'aa'], ['b', 'bb']])
+
+// Set
+// let source = new Set(['a', 'aa', 'b', 'bb'])
+
+// 对象-普通对象
+// let source = { name: 'wagn', age: 18, city: ['beiing', 'haidian'] }
+// source.source = source
+
+// 对象-包装对象
+// let source = new String('aa')
+
+// 对象-Date
+// let source = new Date()
+
+// 对象-Error
+// let source = new Error('error')
+
+// 对象-Symbol (注意是对象化的 Symbol)
+// let source = Object(Symbol('aaa'))
+
+// 对象-正则
+// let source = /\d/g
+
+let ret = deepClone(source)
+console.log(source)
+console.log(ret)
+console.log(source === ret)
+
 
 // 解决层数过多-爆栈问题-跌代写法
 const deepClone = (x) => {
@@ -254,6 +398,8 @@ function shuffle(arr) {
 
 /**
  * 使用 setTimeout 实现 setInterval
+ * @param {function} fn 需要实现的函数
+ * @param {number} delay 延迟时间
 */
 function setInterval(fn, delay) {
   let timer = null;
@@ -392,6 +538,8 @@ function add(num1, num2) {
 
 /**
  * 红绿灯问题
+ * 提供红路灯对象数组,依次按照数组顺序展示红绿灯，循环不止
+ * [{color, duration}]
  */
 let count = 0;
 function fn() {
@@ -404,4 +552,162 @@ function fn() {
   }, arr[index].duration);
 }
 
- 
+
+/**
+ * lazyMan函数
+ * LazyMan('hank').eat('super').sleepFirst(3000).sleep(2000).eat('dinner')
+ */
+class LazyMan {
+  constructor(name) {
+    this.name = name;
+    this.taskList = [];
+    this.next();
+  }
+  next() {
+    let task = this.taskList.shift();
+    if (task) {
+      task(this.next.bind(this));
+    }
+  }
+  sleep(time) {
+    let fn = () => {
+      setTimeout(() => {
+        console.log(`sleep ${time}miao`)
+        this.next()
+      }, time)
+    }
+    this.task.push(fn)
+    return this
+  }
+  eat(food) {
+    let fn = () => {
+      setTimeout(() => {
+        console.log(`eat ${food}fan`)
+        this.next()
+      },2000)
+    }
+    this.task.push(fn)
+    return this
+  }
+  sleepFirst(time){
+    let fn = () => {
+      setTimeout(() => {
+        console.log(`sleepFirst ${time}miao`)
+        this.next()
+      }, time)
+    }
+    this.task.unshift(fn)
+    return this
+  }
+}
+function LazyMan(){
+  return new LazyManClass()
+}
+
+
+/**
+ * 并发队列
+ */
+// class
+class Scheduler {
+  constructor() {
+    this.queue = [];
+    // 最大个数限制
+    this.maxCount = 2;
+    // 当前在执行的个数
+    this.runCounts = 0;
+  }
+  add(promiseCreator) {
+    // 一次性全部入队
+    this.queue.push(promiseCreator);
+  }
+  taskStart() {
+    // 先执行两个
+    for (let i = 0; i < this.maxCount; i++) {
+      this.request();
+    }
+  }
+  request() {
+    if (!this.queue || !this.queue.length || this.runCounts >= this.maxCount) {
+      return;
+    }
+    this.runCounts++;
+    // 取出一个任务
+    this.queue.shift()()
+    .then(() => {
+      this.runCounts--;
+      // 执行完成一个后，再执行一个
+      this.request();
+    });
+  }
+}
+   
+const timeout = time => new Promise(resolve => {
+  setTimeout(resolve, time);
+})
+const scheduler = new Scheduler();
+const addTask = (time,order) => {
+  scheduler.add(() => timeout(time).then(()=>console.log(order)))
+}
+  
+addTask(1000, '1');
+addTask(500, '2');
+addTask(300, '3');
+addTask(400, '4');
+// 一开始1、2两个任务开始执行
+// 500ms时，2任务执行完毕，输出2，任务3开始执行
+// 800ms时，3任务执行完毕，输出3，任务4开始执行
+// 1000ms时，1任务执行完毕，输出1，此时只剩下4任务在执行
+// 1200ms时，4任务执行完毕，输出4
+scheduler.taskStart()
+
+// function
+function multiRequest(urls = [], maxNum) {
+  // 请求总数量
+  const len = urls.length;
+  // 根据请求数量创建一个数组来保存请求的结果
+  const result = new Array(len).fill(false);
+  // 当前完成的数量
+  let count = 0;
+
+  return new Promise((resolve, reject) => {
+    // 先请求maxNum个，队列里面先放maxNum个
+    while (count < maxNum) {
+      next();
+    }
+    function next() {
+      // 每次请求一个，count+1
+      let current = count++;
+      // 处理边界条件，如果已经请求完毕，则不再请求
+      if (current >= len) {
+        // 请求全部完成就将promise置为成功状态, 然后将result作为promise值返回
+        !result.includes(false) && resolve(result);
+        return;
+      }
+      // 取出当前要请求的url
+      const url = urls[current];
+      console.log(`开始 ${current}`, new Date().toLocaleString());
+      // 发起请求
+      fetch(url)
+        .then((res) => {
+          // 保存请求结果
+          result[current] = res;
+          console.log(`完成 ${current}`, new Date().toLocaleString());
+          // 请求没有全部完成, 就递归
+          if (current < len) {
+            next();
+          }
+        })
+        .catch((err) => {
+          console.log(`结束 ${current}`, new Date().toLocaleString());
+          result[current] = err;
+          // 请求没有全部完成, 就递归
+          if (current < len) {
+            next();
+          }
+        });
+    }
+  });
+}
+
+
