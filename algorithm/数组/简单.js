@@ -93,3 +93,26 @@ function removeDuplicates(arr) {
   }
   return arr
 }
+
+
+/**
+ * 长度最小的子数组
+ * case:target = 7, nums = [2,3,1,2,4,3]  4+3=7
+ * 双指针+滑动窗口：记录并更新 >=target 的最小长度
+ */
+function minSubArrayLen(nums, target) {
+  let min = nums.length + 1
+  let sum = 0
+
+  let left = 0
+  let right = 0
+
+  while (right<nums.length) {
+    sum += nums[right++]
+    while(sum >= target){
+      min = Math.min(min, right-left)
+      sum -= nums[left++]
+    }
+  }
+  return min > nums.length ? 0 : min
+}

@@ -324,6 +324,28 @@ Array.prototype.flatten = function(layer = 1){
 
 
 /**
+ * 对象拉平
+ */
+function flatten(obj) {
+  let res = {}
+  function keyToStr(keyStr, value) {
+    if (typeof value !== 'object' || value === null) {
+      console.log('val>>',keyStr,value)
+      // console.log(value)
+      res[keyStr.slice(1)] = value;
+      console.log('res>>',res)
+      return;
+    }
+    for(let i in value) {
+      console.log('for>>>',value, i)
+      keyToStr(keyStr + '.' + i, value[i]);
+    }
+  };
+  keyToStr('', obj);
+  return res;
+}
+
+/**
  * 下划线转驼峰
  * @param {string} str 下划线字符串
  */
@@ -566,7 +588,7 @@ class LazyMan {
   next() {
     let task = this.taskList.shift();
     if (task) {
-      task(this.next.bind(this));
+      task();
     }
   }
   sleep(time) {
