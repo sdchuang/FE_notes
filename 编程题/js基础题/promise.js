@@ -115,89 +115,120 @@
 
 /**
  * 手写实现promise
+ * then 需要支持链式调用，所以得返回一个新的 Promise；
+ * 处理异步问题，所以得先用 onResolvedCallbacks 和 onRejectedCallbacks 分别把成功和失败的回调存起来；
+ * 为了让链式调用正常进行下去，需要判断 onFulfilled 和 onRejected 的类型；
+ * onFulfilled 和 onRejected 需要被异步调用，这里用 setTimeout 模拟异步；
+ * 处理 Promise 的 resolve；
  */
+//Promise/A+规范的三种状态
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
 class MyPromise {
-  constructor(fn) {
-    this.callbacks = [];
-    this.state = "PENDING";
-    this.value = null;
+  // 构造方法接收一个回调
+  constructor(executor) {
+    this._status = PENDING     // Promise状态
+    this._resolveQueue = []    // 成功队列, resolve时触发
+    this._rejectQueue = []     // 失败队列, reject时触发
 
-    fn(this._resolve.bind(this), this._reject.bind(this));
-  }
+    // 由于resolve/reject是在executor内部被调用, 因此需要使用箭头函数固定this指向, 否则找不到this._resolveQueue
+    let _resolve = (val) => {
+      if(this._status !== PENDING) return   // 对应规范中的"状态只能由pending到fulfilled或rejected"
+      this._status = FULFILLED              // 变更状态
 
-  then(onFulfilled, onRejected) {
-    return new MyPromise((resolve, reject) =>
-      this._handle({
-        onFulfilled: onFulfilled || null,
-        onRejected: onRejected || null,
-        resolve,
-        reject,
-      })
-    );
-  }
-
-  catch(onRejected) {
-    return this.then(null, onRejected);
-  }
-
-  _handle(callback) {
-    if (this.state === "PENDING") {
-      this.callbacks.push(callback);
-
-      return;
-    }
-
-    let cb =
-      this.state === "FULFILLED" ? callback.onFulfilled : callback.onRejected;
-    if (!cb) {
-      cb = this.state === "FULFILLED" ? callback.resolve : callback.reject;
-      cb(this.value);
-
-      return;
-    }
-
-    let ret;
-
-    try {
-      ret = cb(this.value);
-      cb = this.state === "FULFILLED" ? callback.resolve : callback.reject;
-    } catch (error) {
-      ret = error;
-      cb = callback.reject;
-    } finally {
-      cb(ret);
-    }
-  }
-
-  _resolve(value) {
-    if (value && (typeof value === "object" || typeof value === "function")) {
-      let then = value.then;
-
-      if (typeof then === "function") {
-        then.call(value, this._resolve.bind(this), this._reject.bind(this));
-
-        return;
+      // 这里之所以使用一个队列来储存回调,是为了实现规范要求的 "then 方法可以被同一个 promise 调用多次"
+      // 如果使用一个变量而非队列来储存回调,那么即使多次p1.then()也只会执行一次回调
+      // 依次执行
+      while(this._resolveQueue.length) {    
+        const callback = this._resolveQueue.shift()
+        callback(val)
       }
     }
-
-    this.state === "FULFILLED";
-    this.value = value;
-    this.callbacks.forEach((fn) => this._handle(fn));
+    // 实现同resolve
+    let _reject = (val) => {
+      if(this._status !== PENDING) return   // 对应规范中的"状态只能由pending到fulfilled或rejected"
+      this._status = REJECTED               // 变更状态
+      while(this._rejectQueue.length) {
+        const callback = this._rejectQueue.shift()
+        callback(val)
+      }
+    }
+    // new Promise()时立即执行executor,并传入resolve和reject
+    executor(_resolve, _reject)
   }
 
-  _reject(error) {
-    this.state === "REJECTED";
-    this.value = error;
-    this.callbacks.forEach((fn) => this._handle(fn));
+  // then方法,接收一个成功的回调和一个失败的回调，并push进对应队列
+  then(resolveFn, rejectFn) {
+    //return一个新的promise
+    return new MyPromise((resolve, reject) => {
+      //把resolveFn重新包装一下,再push进resolve执行队列,这是为了能够获取回调的返回值进行分类讨论
+      const fulfilledFn = value => {
+        try {
+          //执行第一个(当前的)Promise的成功回调,并获取返回值
+          let x = resolveFn(value)
+          //分类讨论返回值,如果是Promise,那么等待Promise状态变更,否则直接resolve
+          //这里resolve之后，就能被下一个.then()的回调获取到返回值，从而实现-链式调用
+          x instanceof MyPromise ? x.then(resolve, reject) : resolve(x)
+        } catch (error) {
+          reject(error)
+        }
+      }
+      //把后续then收集的依赖都push进当前Promise的成功回调队列中(_rejectQueue), 这是为了保证顺序调用
+      // this._resolveQueue.push(fulfilledFn)
+  
+      //reject同理
+      const rejectedFn  = error => {
+        try {
+          let x = rejectFn(error)
+          x instanceof MyPromise ? x.then(resolve, reject) : resolve(x)
+        } catch (error) {
+          reject(error)
+        }
+      }
+      // this._rejectQueue.push(rejectedFn)
+
+      switch (this._status) {
+        // 当状态为pending时,把then回调push进resolve/reject执行队列,等待执行
+        case PENDING:
+          this._resolveQueue.push(fulfilledFn)
+          this._rejectQueue.push(rejectedFn)
+          break;
+        // 当状态已经变为resolve/reject时,直接执行then回调
+        case FULFILLED:
+          fulfilledFn(this._value)    // this._value是上一个then回调return的值(见完整版代码)
+          break;
+        case REJECTED:
+          rejectedFn(this._value)
+          break;
+      }
+
+    })
   }
+  
+  //catch方法其实就是执行一下then的第二个回调
+  catch(rejectFn) {
+    return this.then(undefined, rejectFn)
+  }
+
+  //finally方法
+  finally(callback) {
+    return this.then(
+      value => MyPromise.resolve(callback()).then(() => value),             // MyPromise.resolve执行回调,并在then中return结果传递给后面的Promise
+      reason => MyPromise.resolve(callback()).then(() => { throw reason })  // reject同理
+    )
+  }
+
+  //静态的resolve方法
+  static resolve(value) {
+    if(value instanceof MyPromise) return value // 根据规范, 如果参数是Promise实例, 直接return这个实例
+    return new MyPromise(resolve => resolve(value))
+  }
+
+  //静态的reject方法
+  static reject(reason) {
+    return new MyPromise((resolve, reject) => reject(reason))
+  }
+
+
 }
-
-const p1 = new Promise(function (resolve, reject) {
-  setTimeout(() => reject(new Error("fail")), 3000);
-});
-
-const p2 = new Promise(function (resolve, reject) {
-  setTimeout(() => resolve(p1), 1000);
-});
-
-p2.then((result) => console.log(result)).catch((error) => console.log(error));

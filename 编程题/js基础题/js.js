@@ -1,5 +1,10 @@
 
 /**
+ * 主要为原生js部分API等 手写实现
+ */
+
+
+/**
  * 手写实现call
  * @param {*} context
  * @param {*} args
@@ -73,6 +78,23 @@ Function.prototype.bind = function (context, ...args) {
   // 如果有返回值且返回值是对象类型，那么就将它作为返回值，否则就返回之前新建的对象
   return isObject || isFunction ? res : obj;
 };
+
+
+/**
+ * 实现instanceof
+ * 在对应数据的原型上递归查找
+ */
+ function myInstanceof(left, right) {
+  while (true) {
+    if (left === null) {
+      return false;
+    }
+    if (left.__proto__ === right.prototype) {
+      return true;
+    }
+    left = left.__proto__;
+  }
+}
 
 
 /**
@@ -183,90 +205,22 @@ function Instanceof(left, right) {
 
 
 /**
- * eventBus
- * 事件总线
+ * Object.is()
+ * Object.is不会转换被比较的两个值的类型，这点和===更为相似，他们之间也存在一些区别。
+ * 1. NaN在===中是不相等的，而在Object.is中是相等的
+ * 2. +0和-0在===中是相等的，而在Object.is中是不相等的
  */
-class EventBus {
-  // 定义所有事件列表,此时需要修改格式：
-  // // {
-  //   key: {
-  //     D+id: Function,
-  //     id: Function
-  //   },
-  //   key: Object,
-  // } 
-  // Array存储的是注册的回调函数
-  constructor() {
-    this.eventObj = {}; // 用于存储所有订阅事件
-    this.callbcakId = 0; // 每个函数的ID
+function is(left, right) {
+  if (left === right) {
+    // 当前情况下，只有一种情况是特殊的，即 +0 -0
+    // 如果 x !== 0，则返回true
+    // 如果 x === 0，则需要判断+0和-0，则可以直接使用 1/+0 === Infinity 和 1/-0 === -Infinity来进行判断
+    return left !== 0 || 1 / left === 1 / right;
   }
-  // 订阅事件,类似监听事件$on('key',()=>{})
-  $on(name, callbcak) {
-    // 判断是否存储过
-    if (!this.eventObj[name]) {
-      this.eventObj[name] = {};
-    }
-    // 定义当前回调函数id
-    const id = this.callbcakId++;
-    this.eventObj[name][id] = callbcak; // 以键值对的形式存储回调函数
-    return id; // 将id返回出去，可以利用该id取消订阅
-  }
-  // 发布事件,类似于触发事件$emit('key')
-  $emit(name, ...args) {
-    // 获取存储的事件回调函数数组
-    const eventList = this.eventObj[name];
-    // 执行所有回调函数且传入参数
-    for (const id in eventList) {
-      eventList[id](...args);
-      // 如果是订阅一次，则删除
-      if(id.indexOf('D') !== -1) {
-        delete eventList[id];
-      }
-    }
-  }
-  // 取消订阅函数，类似于$off('key1', id)
-  $off(name, id) {
-    console.log(this.eventObj)
-    // 删除存储在事件列表中的该事件
-    delete this.eventObj[name][id];
-    console.info(`${id}id事件已被取消订阅`)
-    // 如果这是最后一个订阅者，则删除整个对象
-    if (!Object.keys(this.eventObj[name]).length) {
-      delete this.eventObj[name];
-    }
-  }
-  // 订阅事件，只会执行一次，为了方便，id上直接加上一个标识d
-  $once(name, callbcak){
-    // 判断是否存储过
-    if (!this.eventObj[name]) {
-      this.eventObj[name] = {};
-    }
-    // 定义当前回调函数id,添加D则代表只执行一次
-    const id = "D" + this.callbcakId++;
-    this.eventObj[name][id] = callbcak; // 以键值对的形式存储回调函数
-    return id; // 将id返回出去，可以利用该id取消订阅
-  }
+  // x !== y 的情况下，只需要判断是否为NaN，如果x!==x，则说明x是NaN，同理y也一样
+  // x和y同时为NaN时，返回true
+  return left !== left && right !== right;
 }
-// 初始化EventBus
-let EB = new EventBus();
 
 
-// 订阅事件
-EB.$on('key1', (name, age) => {
-  console.info("我是订阅事件A:", name, age);
-})
-EB.$once("key1", (name, age) => {
-  console.info("我是订阅事件B:", name, age);
-})
-EB.$on("key2", (name) => {
-  console.info("我是订阅事件C:", name);
-})
-
-
-// 发布事件key1
-EB.$emit('key1', "小猪课堂", 26);
-console.info("在触发一次key1")
-EB.$emit('key1', "小猪课堂", 26);
-// 发布事件
-EB.$emit('key2', "小猪课堂");
 
