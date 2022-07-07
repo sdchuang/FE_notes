@@ -215,19 +215,12 @@ class LRUCache {
   // 
   put(key, value) {
     // key存在，仅修改值
-    if (this.secretKey.has(key)) {
-      this.secretKey.delete(key);
-      this.secretKey.set(key, value);
+    if (this.map.has(key)) { 
+      this.map.delete(key) 
     }
-    // key不存在，cache未满
-    else if (this.secretKey.size < this.capacity) {
-      this.secretKey.set(key, value);
-    }
-    // 添加新key，删除旧key
-    else {
-      this.secretKey.set(key, value);
-      // 删除map的第一个元素，即为最长未使用的
-      this.secretKey.delete(this.secretKey.keys().next().value);
+    this.map.set(key, value)
+    if(this.map.size > this.capacity){
+      this.map.delete(this.map.keys().next().value)
     }
   }
 }
@@ -285,4 +278,9 @@ function render(vnode, container) {
  * 手写实现promise及相关API
  */
 
+
+
+/**
+ * 对象拉平
+ */
 

@@ -34,3 +34,26 @@ function factorial(n) {
   }
   return n * factorial(n - 1);
 }
+
+
+/**
+ * 找零钱
+ * @param {*} money 总金额
+ * @param {*} coins 硬币种类
+ */
+function change(money, coins) {
+  if (money === 0) {
+    return 0;
+  }
+  if (coins.length === 0) {
+    return -1;
+  }
+  let min = Number.MAX_VALUE;
+  for (let i = 0; i < coins.length; i++) {
+    let temp = change(money - coins[i], coins.slice(i + 1));
+    if (temp !== -1) {
+      min = Math.min(min, temp + 1);
+    }
+  }
+  return min;
+}

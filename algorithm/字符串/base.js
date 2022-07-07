@@ -26,16 +26,19 @@ function longestPalindrome(s) {
     let start = 0;
     let end = 0;
     for (let i = 0; i < s.length; i++) {
+        // 中心点选择不同
         let len1 = expandAroundCenter(s, i, i);
         let len2 = expandAroundCenter(s, i, i + 1);
         let len = Math.max(len1, len2);
         if (len > max) {
             max = len;
+            // 根据中心点位置及长度算出回文子串的起始位置
             start = i - Math.floor((len - 1) / 2);
             end = i + Math.floor(len / 2);
         }
     }
     let expandAroundCenter = function (s, left, right) {
+        // 判断是否回文 同时逐步扩散
         while (left >= 0 && right < s.length && s[left] === s[right]) {
             left--;
             right++;
@@ -65,7 +68,7 @@ function longestPalindrome(s) {
             console.log(text)
             // 判断是否是回文
             if(isPal(text) && text.length > max){
-                // 更新最长回文
+                // 更新最长回文及其长度
                 max = Math.max(text.length, max)
                 ans = text
             }
@@ -73,6 +76,31 @@ function longestPalindrome(s) {
         }
     }
     return ans
+}
+
+
+/**
+ * 最长不重复子串
+ */
+function lengthOfLongestSubstring(s) {
+    let len = s.length
+    let max = 0
+    let start = 0
+    
+    let map = new Map()
+    // 遍历字符串
+    for (let i = 0; i < len; i++) {
+        let char = s[i]
+        // 如果map中已经存在该字符，则更新start位置
+        if(map.has(char)){
+            // 如果存在，则更新起始位置
+            start = Math.max(map.get(char) + 1, start)
+        }
+        map.set(char, i)
+        // 更新最长子串长度
+        max = Math.max(max, i - start + 1)
+    }
+    return max
 }
 
 

@@ -116,3 +116,23 @@ function minSubArrayLen(nums, target) {
   }
   return min > nums.length ? 0 : min
 }
+
+
+/**
+ * 第 k 个缺失的正整数
+ * 如果数组中没有小于k的数，那么第k个缺失的数字就是k
+ * 数组中每出现一个 <= k 的数字, 意味着少了一个缺失的数字, 此时k+1
+ * 最后返回k
+ */
+function findKthPositive(arr, k) {
+    arr.sort((a, b) => a-b)
+    arr = [...new Set(arr)]
+    console.log(arr)
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] <= k && arr[i] > 0) {
+            k++
+        }
+    }
+
+    return k
+}

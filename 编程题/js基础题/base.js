@@ -327,21 +327,36 @@ Array.prototype.flatten = function(layer = 1){
  * 对象拉平
  */
 function flatten(obj) {
-  let res = {}
-  function keyToStr(keyStr, value) {
-    if (typeof value !== 'object' || value === null) {
-      console.log('val>>',keyStr,value)
-      // console.log(value)
-      res[keyStr.slice(1)] = value;
-      console.log('res>>',res)
-      return;
-    }
-    for(let i in value) {
-      console.log('for>>>',value, i)
-      keyToStr(keyStr + '.' + i, value[i]);
+  function isObject(val) {
+    return typeof val === "object" && val !== null;
+  }
+  if (!isObject(obj)) {
+    return;
+  }
+  // 结果
+  let res = {};
+  // 递归
+  const dfs = (cur, prefix) => {
+    // 判断是否是对象
+    if (isObject(cur)) {
+      // 数组
+      if (Array.isArray(cur)) {
+        cur.forEach((item, index) => {
+          dfs(item, `${prefix}[${index}]`);
+        });
+      } else {
+        // 对象
+        for (let k in cur) {
+          dfs(cur[k], `${prefix}${prefix ? "." : ""}${k}`);
+        }
+      }
+    } else {
+      // 普通类型值
+      res[prefix] = cur;
     }
   };
-  keyToStr('', obj);
+  dfs(obj, "");
+
   return res;
 }
 

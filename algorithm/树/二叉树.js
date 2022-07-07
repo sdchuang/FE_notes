@@ -180,6 +180,8 @@ function sumOfLeaves(root) {
   // 遍历左右子树
   return sumOfLeaves(root.left) + sumOfLeaves(root.right)
 }
+
+
 /**
  * 输出二叉树叶子节点
  */
@@ -338,8 +340,11 @@ function buildTree(postorder, inorder) {
 // 另一种写法
 function buildTree(postorder, inorder) {
   if (!postorder.length || !inorder.length) return null
+  // 取出根节点
   let root = new TreeNode(postorder[postorder.length - 1])
+  // 取出根节点在中序中的索引
   let index = inorder.indexOf(postorder[postorder.length - 1])
+  // 确定左右子树   并递归
   root.left = buildTree(postorder.slice(0, index), inorder.slice(0, index))
   root.right = buildTree(postorder.slice(index, postorder.length - 1), inorder.slice(index + 1))
   return root
