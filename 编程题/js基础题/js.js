@@ -84,7 +84,7 @@ Function.prototype.bind = function (context, ...args) {
  * 实现instanceof
  * 在对应数据的原型上递归查找
  */
- function myInstanceof(left, right) {
+function myInstanceof(left, right) {
   while (true) {
     if (left === null) {
       return false;

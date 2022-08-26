@@ -81,6 +81,9 @@ function longestPalindrome(s) {
 
 /**
  * 最长不重复子串
+ * @param {string} s
+ * @return {number}
+ * eg: 'abcabcbb' -> 3
  */
 function lengthOfLongestSubstring(s) {
     let len = s.length

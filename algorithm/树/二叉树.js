@@ -373,3 +373,23 @@ function lowestCommonAncestor(root, p, q) {
   // 如果左右子树有一个有p或者q，则返回左右子树的公共祖先
   return left ? left : right
 }
+
+
+/**
+ * 最大路径和
+ */
+ var maxPathSum = function(root) {
+  let sum = Number.MIN_SAFE_INTEGER
+  function tra(root){
+      if(root == null) return 0
+      // 遍历左右子树，并返回其中最大值
+      let left = Math.max(tra(root.left) ,0) 
+      let right = Math.max(tra(root.right) ,0) 
+      // 回溯，计算并更新最大值
+      sum = Math.max(left+right+root.val, sum)
+      // 回溯完毕，返回当前节点的最大值
+      return Math.max(left, right, 0) + root.val
+  }
+  tra(root)
+  return sum
+};

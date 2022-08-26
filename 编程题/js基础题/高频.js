@@ -261,8 +261,14 @@ function render(vnode, container) {
 
 /**
  * 模板字符串解析
+ * '我是{{name}}，年龄{{age}}，性别{{sex}}';  - 我是姓名，年龄18，性别undefined
  */
-
+ function render(template, data) {
+  let computed = template.replace(/\{\{(\w+)\}\}/g, function (match, key) {
+    return data[key];
+  });
+  return computed;
+}
 
 /**
  * 大数相加
@@ -278,9 +284,105 @@ function render(vnode, container) {
  * 手写实现promise及相关API
  */
 
+/**
+ * 实现高阶函数map
+ */
+ Array.prototype.myMap = function(fn) {
+  let arr = Array.prototype.slice.call(this);
+  let mappedArr = Array()
+  for(let i = 0; i < arr.length; i++) {
+    if(!arr.hasownProperty(i)) continue;
+    mappedArr[i] = fn.call(this, arr[i], i, this);
+  }
+  return mappedArr;
+}
 
+// reduce
+Array.prototype.reduce = function(fn, prev) {
+  for(let i = 0; i < this.length; i++) {
+    // 初始值不传时的处理
+    if (typeof prev === 'undefined') {
+      // 明确回调函数的参数都有哪些
+      prev = fn(this[i], this[i+1], i+1, this);
+      ++i;
+    } else {
+      prev = fn(prev, this[i], i, this)
+    }
+  }
+  // 函数的返回结果会作为下一次循环的 prev
+  return prev;
+};
 
 /**
  * 对象拉平
  */
+ function flatten(obj) {
+  function isObject(val) {
+    return typeof val === "object" && val !== null;
+  }
+  if (!isObject(obj)) {
+    return;
+  }
+  // 结果
+  let res = {};
+  // 递归
+  const dfs = (cur, prefix) => {
+    // 判断是否是对象
+    if (isObject(cur)) {
+      // 数组
+      if (Array.isArray(cur)) {
+        cur.forEach((item, index) => {
+          dfs(item, `${prefix}[${index}]`);
+        });
+      } else {
+        // 对象
+        for (let k in cur) {
+          dfs(cur[k], `${prefix}${prefix ? "." : ""}${k}`);
+        }
+      }
+    } else {
+      // 普通类型值
+      res[prefix] = cur;
+    }
+  };
+  dfs(obj, "");
 
+  return res;
+}
+
+
+
+
+// 最长上升子序列
+function lengthOfLIS(arr) {
+  if (arr.length === 0) {
+    return 0;
+  }
+  let dp = new Array(arr.length).fill(1);
+  for (let i = 1; i < arr.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (arr[i] > arr[j]) {
+        dp[i] = Math.max(dp[i], dp[j] + 1);
+      }
+    }
+  }
+  return Math.max(...dp);
+}
+
+// 括号生成
+function generateParenthesis(n) {
+  let res = [];
+  const dfs = (left, right, str) => {
+    if (left === 0 && right === 0) {
+      res.push(str);
+    }
+    if (left > 0) {
+      dfs(left - 1, right, str + "(");
+    }
+    if (right > left) {
+      dfs(left, right - 1, str + ")");
+    }
+  }
+  dfs(n, n, "");
+  return res;
+}
