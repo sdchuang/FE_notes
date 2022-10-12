@@ -83,7 +83,7 @@ function removeDuplicates(arr) {
   let map = new Map()
   for (let i = 0; i < arr.length;) {
     const item = arr[i];
-    if(map.get(item)){
+    if(map.has(item)){
       arr.splice(i, 1)
     }else{
       map.set(item, true)
@@ -269,23 +269,30 @@ function permutate(arr) {
   }
   return res;
 }
-// 另
-// result：用于最后存储排列结果的，如果放到函数里头，每次递归都变成新申明的变量了
-const result = [];
-// 记录组合的成员，如：["A" "a", 1]
-const temp = [];
 
-function permutationAndCombination(arr, index) {
-  console.log( index)
-  for (var i = 0; i < arr[index].length; i++) {
-    temp[index] = arr[index][i];
-    console.log('>>', temp)
-    if (index != arr.length - 1) {
-      permutationAndCombination(arr, index + 1)
-    } else {
-   		// 把组合成员join起来，然后放到result里头
-      result.push(temp.join(''));
+
+/**
+ * 最长重复子数组
+ * @param {*} A 
+ * @param {*} B 
+ * @returns 
+ * nums1 = [1,2,3,2,1], nums2 = [3,2,1,4,7]
+ * 双层遍历，遇到相同的，再看看后续的是否也相同，同时更新子串长度，直至两个都遍历完
+ */
+var findLength = function(A, B) {
+  const m = A.length;
+    const n = B.length;
+    let res = 0;
+    for (let i = 0; i < m; i++) {
+      for (let j = 0; j < n; j++) {
+        if (A[i] == B[j]) { // 遇到相同项
+          let subLen = 1;   // 公共子序列长度至少为1
+          while (i + subLen < m && j + subLen < n && A[i + subLen] == B[j + subLen]) { //新的一项也相同
+            subLen++; // 公共子序列长度每次增加 1，考察新的一项
+          }
+          res = Math.max(subLen, res);
+        }
+      }
     }
-  }
-  return result
-}
+    return res;
+  };

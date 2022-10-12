@@ -204,6 +204,7 @@ class LRUCache {
     // 容量
     this.capacity = capacity;
   }
+  // 使用读取
   get(key) {
     if (this.secretKey.has(key)) {
       let tempValue = this.secretKey.get(key);
@@ -212,7 +213,7 @@ class LRUCache {
       return tempValue;
     } else return -1;
   }
-  // 
+  // 写入
   put(key, value) {
     // key存在，仅修改值
     if (this.map.has(key)) { 
@@ -370,6 +371,7 @@ function lengthOfLIS(arr) {
 }
 
 // 括号生成
+// 转换成二叉树进行处理，深度优先递归过程中进行剪枝优化
 function generateParenthesis(n) {
   let res = [];
   const dfs = (left, right, str) => {
@@ -385,4 +387,66 @@ function generateParenthesis(n) {
   }
   dfs(n, n, "");
   return res;
+}
+
+
+// 全排列
+var permute = function (nums) {
+  // 边界情况
+  if (nums.length === 0) {
+    return [];
+  }
+  // 手画一个树，采用深度优先搜索，将搜索到的叶子节点（排列的结果）添加到结果数组中
+  const res = [];
+  dfs([]);
+  return res;
+  /**
+   *
+   * @param {string} currArr 深度搜索时当前的数组
+   */
+  function dfs(currArr) {
+    // 已经遍历到叶子结点了，此时 currArr 就是结果之一
+    if (currArr.length === nums.length) {
+      res.push(currArr);
+      return;
+    }
+    for (let i = 0; i < nums.length; i++) {
+      const element = nums[i];
+      // 只将没有包含在currArr里的元素加入到 新一轮的遍历中
+      if (!currArr.includes(element)) {
+        dfs([...currArr, element]);
+      }
+    }
+  }
+
+  // 
+  // 另解
+  // 每次拿出来一个，取出剩下的，递归直到剩一个，然后再逐次拼接
+  if(matrix.length === 1) {
+      return [matrix]
+  }
+  let res = []
+  for(let s of matrix){
+    const arr = matrix.filter(str => str != s)
+    console.log(arr)
+    _permute(arr).forEach(item => {
+      console.log('>>',res, s, item)
+
+      // res.push(s+item)
+      res.push([s].concat(item))
+    })
+  }
+  return res
+};
+
+// compose
+function compose(...funcs){
+  if (funcs.length === 0) {
+    return arg => arg;
+  }
+
+  if (funcs.length === 1) {
+    return funcs[0];
+  }
+  return funcs.reduce((a, b) => (...args) => a(b(...args)));
 }

@@ -267,34 +267,6 @@ function hasPathSum(root, sum) {
  * 从前序与中序遍历序列构造二叉树
  */
 function buildTree(preorder, inorder) {
-  let map = new Map()
-  // 中序索引
-  for (let i = 0; i < inorder.length; i++) {
-    map.set(inorder[i], i)
-  }
-  let build = function (inorder, inStart, inEnd, preorder, postStart, postEnd) {
-    if(inStart > inEnd || postStart > postEnd){
-        return null
-    }
-    // 确定根节点
-    let rootVal = preorder[postStart]
-    // 确定在中序中的索引
-    let index = map.get(rootVal)
-    // 构建
-    let root = new TreeNode(rootVal)
-    // 确定左右子树  并递归
-    // 确定左子树长度
-    let leftLen = index - inStart
-    root.left = build(inorder, inStart, index-1, preorder, postStart+1, postStart + leftLen)
-    root.right = build(inorder, index+1, inEnd, preorder, postStart + leftLen+1, postEnd)
-
-    return root
-  }
-
-  return build(inorder, 0, inorder.length-1, preorder, 0, preorder.length-1)
-}
-// 另一种写法
-function buildTree(preorder, inorder) {
   if (!preorder.length || !inorder.length) return null
   // 取出根节点
   let root = new TreeNode(preorder[0])
@@ -310,34 +282,6 @@ function buildTree(preorder, inorder) {
 /**
  * 从后序与中序遍历序列构造二叉树
  */
-function buildTree(postorder, inorder) {
-  let map = new Map()
-  // 中序索引
-  for (let i = 0; i < inorder.length; i++) {
-    map.set(inorder[i], i)
-  }
-  let build = function (inorder, inStart, inEnd, postorder, postStart, postEnd) {
-    if(inStart > inEnd || postStart > postEnd){
-        return null
-    }
-    // 确定根节点
-    let rootVal = postorder[postEnd]
-    console.log(rootVal)
-    // 确定在中序中的索引
-    let index = map.get(rootVal)
-    // 构建
-    let root = new TreeNode(rootVal)
-    // 确定左右子树  并递归
-    let leftLen = index - inStart
-    root.left = build(inorder, inStart, index-1, postorder, postStart, postStart + leftLen -1)
-    root.right = build(inorder, index+1, inEnd, postorder, postStart + leftLen, postEnd-1)
-
-    return root
-  }
-
-  return build(inorder, 0, inorder.length-1, postorder, 0, postorder.length-1)
-}
-// 另一种写法
 function buildTree(postorder, inorder) {
   if (!postorder.length || !inorder.length) return null
   // 取出根节点
@@ -392,4 +336,20 @@ function lowestCommonAncestor(root, p, q) {
   }
   tra(root)
   return sum
+};
+
+// 求根到叶子节点数字之和
+const dfs = (root, prevSum) => {
+  if (root === null) {
+      return 0;
+  }
+  const sum = prevSum * 10 + root.val;
+  if (root.left == null && root.right == null) {
+      return sum;
+  } else {
+      return dfs(root.left, sum) + dfs(root.right, sum);
+  }
+}
+var sumNumbers = function(root) {
+  return dfs(root, 0);
 };

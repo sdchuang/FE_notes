@@ -114,3 +114,44 @@ var rob = function(nums) {
   }
   return dp[n - 1];
 }
+
+// 最长公共子序列
+// 两字符串相同: dp[i][j] = dp[i-1][j-1] + 1;
+// 不同: dp[i][j] = Math.max(dp[i-1][j],dp[i][j-1]);
+var longestCommonSubsequence = function(text1, text2) {
+  let m = text1.length;
+  let n = text2.length;
+  let dp = Array.from({length: m+1},()=> new Array(n+1).fill(0));
+  dp[0][0] = 0;
+  for(let i = 1; i <=m; i++) {
+      for(let j = 1; j <=n; j++) {
+          if(text1[i-1] === text2[j-1]) {
+              dp[i][j] = dp[i-1][j-1] + 1;
+          } else {
+              dp[i][j] = Math.max(dp[i-1][j],dp[i][j-1]);
+          }
+      }
+  }
+  return dp[m][n];
+};
+
+
+/**
+ * 单词拆分
+ * 入参 ： 'leetcode' ["leet","code"]
+ */
+function wordBreak(s, wordDict){
+  const n = s.length;
+    const wordDictSet = new Set(wordDict);
+    const dp = new Array(n + 1).fill(false);
+    dp[0] = true;
+    for (let i = 1; i <= n; i++) {
+        for (let j = 0; j < i; j++) {
+            if (dp[j] && wordDictSet.has(s.substr(j, i - j))) {
+                dp[i] = true;
+                break;
+            }
+        }
+    }
+    return dp[n];
+}

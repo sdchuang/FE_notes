@@ -69,6 +69,53 @@ function getIntersectionNode(headA, headB) {
 
 
 /**
+ * 删除链表中的重复元素
+ * head = [1,1,2,3,3]
+ * 输出：[1,2,3]
+ */
+ var deleteDuplicates = function(head) {
+  if (!head) {
+      return head;
+  }
+
+  let cur = head;
+  while (cur.next) {
+      if (cur.val === cur.next.val) {
+          cur.next = cur.next.next;
+      } else {
+          cur = cur.next;
+      }
+  }
+  return head;
+};
+
+/**
+ * 删除链表中的重复元素
+ * head = [1,1,2,3,3]
+ * 输出：[2,3]
+ */
+ var deleteDuplicates = function(head) {
+  if (!head) {
+      return head;
+  }
+  let dumNode = new ListNode(0, head)
+
+  let cur = dumNode;
+  while (cur.next && cur.next.next) {
+      if (cur.next.val === cur.next.next.val) {
+          const x = cur.next.val
+          while(cur.next && cur.next.val == x){
+              cur.next = cur.next.next;  
+          }
+      } else {
+          cur = cur.next;
+      }
+  }
+  return dumNode.next;
+};
+
+
+/**
  * 删除链表的倒数第N个节点
  */
 function removeNthFromEnd(head, n) {
@@ -131,6 +178,30 @@ function reverseList(head) {
   }
   return prev;
 }
+
+// 反转指定区间链表
+var reverseBetween = function(head, left, right) {
+  // 制造预先的空节点
+  const dummy_node = new ListNode(-1);
+  dummy_node.next = head;
+
+ // 遍历到左边界
+ let pre = dummy_node;
+ for (let i = 0; i < left - 1; ++i) {
+     pre = pre.next;
+ }
+ // 依次遍历区间内节点
+//  并把它们依次都放到左边界第一个位置，插入到左边界的边界点
+ let cur = pre.next;
+ for (let i = 0; i < right - left; ++i) {
+      const next = cur.next;
+      cur.next = next.next;
+      next.next = pre.next;
+      pre.next = next;
+  }
+  return dummy_node.next;
+};
+
 
 
 /**
