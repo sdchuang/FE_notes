@@ -1,31 +1,32 @@
 
 /**
  * 组合
+ * n=4 k=2
+ * 1-4 其中任意两数的全部组合
  */
  var combine = function(n, k) {
-  const ans = [];
-  const dfs = (cur, n, k, temp) => {
-      // 剪枝：temp 长度加上区间 [cur, n] 的长度小于 k，不可能构造出长度为 k 的 temp
-      if (temp.length + (n - cur + 1) < k) {
-          return;
-      }
-      // 记录合法的答案
-      if (temp.length == k) {
-          ans.push(temp);
-          return;
-      }
-      // 考虑选择当前位置
-      dfs(cur + 1, n, k, [...temp, cur]);
-      // 考虑不选择当前位置
-      dfs(cur + 1, n, k, temp);
+  let res = []
+  let back = function(start, n, k, list){
+    if(list.length === k){
+      res.push([...list])
+      return
+    }
+    // 
+    for(let i=start;i<=n;i++){
+      list.push(i)
+      back(i+1, n, k, list)
+      list.pop()
+    }
   }
-  dfs(1, n, k, []);
-  return ans;
+  back(1,n,k,[])
+  return res
 };
 
 
 /**
  * 全排列
+ * 输入：nums = [1,2,3]
+ * 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
  */
 var combinationSum = function(nums) {
   let res = []
@@ -52,6 +53,8 @@ var combinationSum = function(nums) {
 
 /**
  * 子集
+ * 输入：nums = [1,2,3]
+ * 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
  */
 const subsets = (nums) => {
   const res = [];
@@ -66,5 +69,32 @@ const subsets = (nums) => {
   };
   dfs(0, []);
   return res;
+};
+
+
+// 组合总和
+// 输入：candidates = [2,3,6,7], target = 7
+// 输出：[[2,2,3],[7]]
+var combinationSum = function(candidates, target) {
+  let len = candidates.length
+  let res = []
+  let path = []
+
+  let dfs = function(candidates, idx, target, path){
+      if(target < 0){
+          return
+      }
+      if(target == 0){
+          res.push(path.length > 1 ? new Array(...path) : [path[0]])
+          return
+      }
+      for(let i=idx;i<len;i++){
+          path.push(candidates[i])
+          dfs(candidates, i, target - candidates[i], path)
+          path.pop()
+      }
+  }
+  dfs(candidates, 0, target, path)
+  return res
 };
 

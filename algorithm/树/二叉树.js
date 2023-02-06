@@ -160,6 +160,29 @@ function levelOrder(root) {
 }
 
 
+
+
+/**
+ * 平衡二叉树
+ * 一个二叉树每个节点 的左右两个子树的高度差的绝对值不超过 1 
+ */
+ var isBalanced = function (root) {
+  if (root == null) return true;
+  // 求树的深度
+  const depth = (root) => {
+    if (root == null) return 0;
+    return Math.max(depth(root.left), depth(root.right)) + 1;
+  };
+  // 递归遍历左右子树，发现当前遍历到的节点为根节点的树不是平衡二叉树时，修改结果并返回。
+  return (
+    Math.abs(depth(root.left) - depth(root.right)) < 2 &&
+    isBalanced(root.left) &&
+    isBalanced(root.right)
+  );
+};
+
+
+
 /**
  * 二叉树深度
  */
@@ -169,6 +192,25 @@ function depth(root) {
   return Math.max(depth(root.left), depth(root.right)) + 1
 }
 
+// 二叉树宽度
+var widthOfBinaryTree = function(root) {
+  const queue = [[root, 0]];
+  let res = 0; // 全局维护最大值
+  let left = 0; // 记录当前层最左边节点的计数值
+  let right = 0; // 记录当前层最右边节点的计数值
+  while (queue.length) {
+    left = queue[0][1];
+    const len = queue.length;
+    for (let i = 0; i < len; i++) {
+      let [h, pos] = queue.shift();
+      right = pos;
+      if (h.left) queue.push([h.left, 2 * (pos - left)]); // 重点，优化掉左边不需要计数的部分
+      if (h.right) queue.push([h.right, 2 * (pos - left) + 1]);
+    }
+    res = Math.max(res, right - left + 1);
+  }
+  return res;
+}
 
 /**
  * 二叉树叶子节点的和

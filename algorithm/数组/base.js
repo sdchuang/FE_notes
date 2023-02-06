@@ -44,7 +44,7 @@ function rotate(matrix) {
  * 矩阵对角线遍历
  * @param {number[][]} matrix
  */
-function findDiagonalOrder(matrix) {
+function findDiagonalOrder(mat) {
   let nums = [];
   // 非空判定
   let m = mat.length;
@@ -152,7 +152,6 @@ function findKthLargest(nums, k) {
     for (let j = 0; j < i; j++) {
       console.log(i, j, nums[i], nums[j])
       if (nums[j] > nums[i]) {
-
         [nums[j], nums[i]] = [nums[i], nums[j]]
       }
     }
@@ -296,3 +295,79 @@ var findLength = function(A, B) {
     }
     return res;
   };
+
+
+/**
+ * 二分法-查找一元素的前后坐标
+ */
+const binarySearch = (nums, target, lower) => {
+    let left = 0, right = nums.length - 1, ans = nums.length;
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        if (nums[mid] > target || (lower && nums[mid] >= target)) {
+            right = mid - 1;
+            ans = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return ans;
+}
+
+var searchRange = function(nums, target) {
+    let ans = [-1, -1];
+    const leftIdx = binarySearch(nums, target, true);
+    const rightIdx = binarySearch(nums, target, false) - 1;
+    if (leftIdx <= rightIdx && rightIdx < nums.length && nums[leftIdx] === target && nums[rightIdx] === target) {
+        ans = [leftIdx, rightIdx];
+    } 
+    return ans;
+};
+
+
+/**
+ * 最长连续序列
+ * 输入：nums = [100,4,200,1,3,2]
+ * 输出：4
+ */
+ var longestConsecutive = function(nums) {
+  let num_set = new Set();
+  for (const num of nums) {
+      num_set.add(num);
+  }
+
+  let longestStreak = 0;
+
+  for (const num of num_set) {
+      if (!num_set.has(num - 1)) {
+          let currentNum = num;
+          let currentStreak = 1;
+
+          while (num_set.has(currentNum + 1)) {
+              currentNum += 1;
+              currentStreak += 1;
+          }
+
+          longestStreak = Math.max(longestStreak, currentStreak);
+      }
+  }
+
+  return longestStreak;   
+};
+
+
+/**
+ * 每日温度
+ */
+ const dailyTemperatures = (T) => {
+  const res = new Array(T.length).fill(0);
+  for (let i = 0; i < T.length; i++) {
+      for (let j = i + 1; j < T.length; j++) {
+          if (T[j] > T[i]) {
+              res[i] = j - i;
+              break;
+          }
+      }
+  }
+  return res;
+}

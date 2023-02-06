@@ -119,42 +119,22 @@ function getIntersectionNode(headA, headB) {
  * 删除链表的倒数第N个节点
  */
 function removeNthFromEnd(head, n) {
-  let temp = head;
-  // 先找到链表的长度
-  let count = 0;
-  while (temp !== null) {
-      count++;
-      temp = temp.next;
+  // 
+  let temp = head
+  let count = 0
+  while(temp != null){
+      count++
+      temp = temp.next
   }
 
-  // 边界情况处理
-  // 如果链表只有一个节点，则直接返回null
-  if (count === 1) {
-      return null;
+  let dummy = new ListNode(0, head)
+  let cur = dummy
+  for (let i = 1; i < count - n + 1; i++) {
+      cur = cur.next;
   }
-  // 如果n大于链表长度，则直接返回head,相当于不删除
-  if (n > count) {
-    return head;
-  }
-  // 如果删除的是第一个节点，则直接返回head.next，相当于删除第一个节点
-  if (n === count) {
-      return head.next;
-  }
-  
-  temp = head;
-  let prev = null;
-  // 先遍历到第n-1个节点
-  while (count > n) {
-    // 先保存下一个节点
-      prev = temp;
-      // 再移动到下一个节点
-      temp = temp.next;
-      // 减少计数器
-      count--;
-  }
-  // 删除节点
-  prev.next = temp.next;
-  return head;
+  cur.next = cur.next.next
+
+  return dummy.next
 }
 
 
@@ -180,6 +160,7 @@ function reverseList(head) {
 }
 
 // 反转指定区间链表
+// 头插法
 var reverseBetween = function(head, left, right) {
   // 制造预先的空节点
   const dummy_node = new ListNode(-1);
@@ -354,3 +335,25 @@ function rotateRight(head, k) {
   cur.next = null;
   return ret;
 }
+
+
+// 排序链表
+var sortList = function(head) {
+  //特判
+  if(!head) return null;
+  //全部切断
+  let s = [];
+  while (head) {
+      let t = head.next;
+      head.next = null;
+      s.push(head);
+      head = t;
+  }
+  //排序
+  s.sort((a, b) => (a.val - b.val));
+  //重组
+  for(let i = 0; i < s.length - 1; i ++) {
+      s[i].next = s[i + 1];
+  }
+  return s[0];
+};

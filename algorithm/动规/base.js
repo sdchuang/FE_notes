@@ -63,6 +63,7 @@ function change(money, coins) {
 
 /**
  * 最大子序和
+ * [-2,1,-3,4,-1,2,1,-5,4]  6  连续子数组 [4,-1,2,1] 的和最大，为 6 
  * f(i)=max{f(i−1)+nums[i],nums[i]}
  */
  var maxSubArray = function(nums) {
@@ -116,6 +117,8 @@ var rob = function(nums) {
 }
 
 // 最长公共子序列
+// 输入：text1 = "abcde", text2 = "ace" 
+// 输出：3  
 // 两字符串相同: dp[i][j] = dp[i-1][j-1] + 1;
 // 不同: dp[i][j] = Math.max(dp[i-1][j],dp[i][j-1]);
 var longestCommonSubsequence = function(text1, text2) {
@@ -155,3 +158,41 @@ function wordBreak(s, wordDict){
     }
     return dp[n];
 }
+
+
+// 最长上升子序列
+function lengthOfLIS(arr) {
+  if (arr.length === 0) {
+    return 0;
+  }
+  let dp = new Array(arr.length).fill(1);
+  for (let i = 1; i < arr.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (arr[i] > arr[j]) {
+        dp[i] = Math.max(dp[i], dp[j] + 1);
+      }
+    }
+  }
+  return Math.max(...dp);
+}
+
+
+/**
+ * 乘积最大子数组
+ */
+ var maxProduct = function(nums) {
+  let max = min = nums[0], dp = [nums[0]]
+
+  for (let i=1; i<nums.length; i++) {
+      if (nums[i] < 0) {
+         [max, min] = [min, max]
+      }
+
+      max = Math.max(max*nums[i], nums[i])
+      min = Math.min(min*nums[i], nums[i])
+
+      dp[i] = max
+  }
+
+  return Math.max(...dp)
+};
