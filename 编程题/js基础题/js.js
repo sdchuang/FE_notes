@@ -8,6 +8,9 @@
  * 手写实现call
  * @param {*} context
  * @param {*} args
+ * ex:
+ * fn.call(obj2, 1, 2)
+ * obj2.fn(1, 2)
  */
  Function.prototype.call = function (context, ...args) {
   // 参数预处理
@@ -30,6 +33,10 @@
  * 手写实现bind
  * @param {*} context
  * @param {*} args
+ * ex:
+ * fn1 = fn.bind(obj, 1, 2)
+ * fn1 = fn.call(obj, 1, 2)
+ * fn1 = obj.fn(1, 2)
  */
 Function.prototype.bind = function (context, ...args) {
   // 参数预处理
@@ -60,6 +67,9 @@ Function.prototype.bind = function (context, ...args) {
  * 手写实现new操作符
  * @param {*} constructor 构造函数
  * @param {*} args
+ * ex:
+ * obj = new Fn(1,2)
+ * obj = _new(Fn, 1, 2)
  */
  function _new(constructor, ...args) {
   // 构造函数类型合法判断

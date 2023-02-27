@@ -1,7 +1,9 @@
 
 /**
  * 实现promise.all
+ * 按顺序返回结果，如果参数中有一个失败，此实例回调失败，返回第一个失败的结果
  * @param {Iterable} promises 一个迭代结构，包含多个promise
+ * @returns Promise<Array>
  */
  Promise.prototype.all = function (promiseArr) {
   // resArr结果数组，count已成功的promise数量
@@ -27,8 +29,11 @@
 /**
  * 实现promise.race
  * @param {Iterable} promises 一个迭代结构，包含多个promise
+ * @returns Promise
+ * 一旦迭代器中的某个promise解决或拒绝，返回的 promise就会解决或拒绝
+ * 有一个成功或者失败就采用它的结果
  */
- Promise.prototype.race = function (promiseArr) {
+Promise.prototype.race = function (promiseArr) {
   return new Promise(function (resolve, reject) {
       for (let promise of promiseArr) {
           if (typeof promise === 'object' && typeof promise.then === 'function') {
@@ -39,6 +44,12 @@
               // 不是Promise实例对象直接返回当前值
               resolve(promise);
           }
+          // 
+          // Promise.resolve(promise).then(res => {
+          //     resolve(res)
+          // }).catch(err => {
+          //     reject(err)
+          // })
       }
   })
 }

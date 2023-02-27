@@ -33,6 +33,28 @@ function listToTree(data) {
   return treeData;
 }
 
+/**
+ * 树转列表
+ */
+function treeToList(data){
+  // let res = []
+  // for(let item of data){
+  //   if(item.children && item.children.length > 0){
+  //     let { id = '', title = '', pid = ''} = item
+  //     res.push({
+  //       id, title, parent_id: pid
+  //     })
+  //     deal(item.children)
+  //   }else{
+  //     res.push(item)
+  //   }
+  // }
+  // return res
+  return data.reduce((s, {id, title, pid, children = []}, i) => {
+    return s.concat([{id, title, pid}], deal(children))
+  }, [])
+}
+
 
 /**
  * 版本号排序
@@ -75,7 +97,7 @@ function versionSort(arr) {
   //   },
   //   key: Object,
   // } 
-  // Array存储的是注册的回调函数
+  // 存储的是注册的回调函数
   constructor() {
     this.eventObj = {}; // 用于存储所有订阅事件
     this.callbcakId = 0; // 每个函数的ID
@@ -434,6 +456,9 @@ function get(o, path, defaultValue) {
   }
 }
 
+/**
+ * set(object, 'a[0].b.c', 4);
+ */
 function set(target, path, value) {
   const paths = `${path}`.match(/(\w|\$)+/g)
   if (paths && paths.length) {

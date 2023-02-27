@@ -142,8 +142,10 @@ function levelOrder(root) {
   while(queue.length){
     // 每层的数据
     let lev = []
+    // 队列长度，同时相等于每层节点个数
+    let len = que.length
     // 从左到右遍历每个节点
-    for (let i = 0; i < queue.length; i++) {
+    for (let i = 0; i < len; i++) {
       let item = queue.shift()
       lev.push(item.val)
   

@@ -4,7 +4,7 @@
  */
 // 浅拷贝的实现;
 function shallowCopy(object) {
-  // 只拷贝对象
+  // 只拷贝对象 基本类型直接返回
   if (!object || typeof object !== "object") return object;
 
   // 根据 object 的类型判断是新建一个数组还是对象
@@ -49,14 +49,12 @@ function deepClone(obj, map = new Map()) {
   }
   // 为object的存入map中
   map.set(obj, newObj)
-  if (obj && typeof obj === 'object') {
-    for (let key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        if (typeof obj[key] === 'object') {
-          newObj[key] = deepClone(obj[key], map);
-        } else {
-          newObj[key] = obj[key];
-        }
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (typeof obj[key] === 'object') {
+        newObj[key] = deepClone(obj[key], map);
+      } else {
+        newObj[key] = obj[key];
       }
     }
   }
