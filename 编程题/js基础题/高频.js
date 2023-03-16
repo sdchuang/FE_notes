@@ -179,7 +179,18 @@ EB.$emit('key2', "小猪课堂");
  * 多种方式实现
  */
 
-
+// 累加
+function add() {
+  let res = [...arguments];
+  function resultFn() {
+    res = res.concat([...arguments]);
+    return resultFn;
+  }
+  resultFn.toString = function() {
+    return res.reduce((a,b) =>a+b);
+  }
+  return resultFn;
+}
 
 /**
  * 函数柯里化
@@ -427,22 +438,18 @@ function compose(...funcs){
 
 // get
 //  ({a:{b:{c:[10]}}}, 'a.b.d[0]', 10)
-function parseQuery(source, path = '', defaultValue = null) {
-
-  const paths = path.replace(/\[(\d+)\]/g, ".$1").split('.')
+function parseQuery(source, path, defaultValue = ''){
+  // 转换path -> a.b.c
+  let paths = path.replace(/\[(\d+)\]/g, ".$1").split('.')
   console.log(paths)
-  
-  let result = source;
-  for (const key of paths) {
-    console.log(key)
-    result = Object(result)[key];
-    console.log(result)
-
-    if(result === undefined) {
-      return 'cuo';
+  let res = source
+  for(let k of paths){
+    res = res[k]
+    if(!res){
+      return defaultValue
     }
   }
-  return result == defaultValue ? 'dui  '+result : 'cuo  ' + result;
+  return res
 }
 
 

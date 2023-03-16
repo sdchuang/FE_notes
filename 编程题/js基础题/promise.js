@@ -243,3 +243,53 @@ class MyPromise {
 
 
 }
+
+
+/**
+ * 实现async
+ */
+function asyncToGenerator(generatorFunc) {
+  return function() {
+    const gen = generatorFunc.apply(this, arguments)
+    return new Promise((resolve, reject) => {
+      function step(key, arg) {
+        let generatorResult
+        try {
+          generatorResult = gen[key](arg)
+        } catch (error) {
+          return reject(error)
+        }
+        const { value, done } = generatorResult
+        if (done) {
+          return resolve(value)
+        } else {
+          return Promise.resolve(value).then(val => step('next', val), err => step('throw', err))
+        }
+      }
+      step("next")
+    })
+  }
+}
+// ryf
+function spawn(genF) {
+  return new Promise(function(resolve, reject) {
+    const gen = genF();
+    function step(nextF) {
+      let next;
+      try {
+        next = nextF();
+      } catch(e) {
+        return reject(e);
+      }
+      if(next.done) {
+        return resolve(next.value);
+      }
+      Promise.resolve(next.value).then(function(v) {
+        step(function() { return gen.next(v); });
+      }, function(e) {
+        step(function() { return gen.throw(e); });
+      });
+    }
+    step(function() { return gen.next(undefined); });
+  });
+}

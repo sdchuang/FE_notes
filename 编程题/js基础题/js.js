@@ -79,7 +79,7 @@ Function.prototype.bind = function (context, ...args) {
   // 新建空对象实例
   let obj = new Object();
   // 将构造函数的原型绑定到新创的对象实例上
-  obj.__proto__ = Object.create(constructor.prototype);
+  obj.__proto__ = constructor.prototype;
   // 调用构造函数
   let res = constructor.apply(obj,  args);
   // 并判断返回值
