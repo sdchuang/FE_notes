@@ -37,6 +37,7 @@
  * fn1 = fn.bind(obj, 1, 2)
  * fn1 = fn.call(obj, 1, 2)
  * fn1 = obj.fn(1, 2)
+ * fn1(3, 4)
  */
 Function.prototype.bind = function (context, ...args) {
   // 参数预处理

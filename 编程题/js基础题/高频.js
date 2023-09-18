@@ -51,7 +51,7 @@ function treeToList(data){
   // }
   // return res
   return data.reduce((s, {id, title, pid, children = []}, i) => {
-    return s.concat([{id, title, pid}], deal(children))
+    return s.concat([{id, title, pid}], treeToList(children))
   }, [])
 }
 
@@ -90,7 +90,7 @@ function versionSort(arr) {
  */
  class EventBus {
   // 定义所有事件列表,此时需要修改格式：
-  // // {
+  // {
   //   key: {
   //     D+id: Function,
   //     id: Function
