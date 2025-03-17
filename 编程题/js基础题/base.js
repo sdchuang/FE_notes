@@ -1,3 +1,6 @@
+/**
+ * js基础场景问题
+ */
 
 /**
  * 浅拷贝
@@ -62,7 +65,7 @@ function deepClone(obj, map = new Map()) {
 }
 
 
-// 解决层数过多-爆栈问题-跌代写法
+// 解决层数过多-爆栈问题-迭代写法
 const deepClone = (x) => {
   const root = {};
 
@@ -531,7 +534,7 @@ class Scheduler {
     });
   }
 }
-   
+
 const timeout = time => new Promise(resolve => {
   setTimeout(resolve, time);
 })
@@ -539,7 +542,7 @@ const scheduler = new Scheduler();
 const addTask = (time,order) => {
   scheduler.add(() => timeout(time).then(()=>console.log(order)))
 }
-  
+
 addTask(1000, '1');
 addTask(500, '2');
 addTask(300, '3');
