@@ -501,7 +501,7 @@ function LazyMan(){
 /**
  * 并发队列
  */
-// class
+// class写法
 class Scheduler {
   constructor() {
     this.queue = [];
@@ -554,7 +554,7 @@ addTask(400, '4');
 // 1200ms时，4任务执行完毕，输出4
 scheduler.taskStart()
 
-// function
+// function写法
 function multiRequest(urls = [], maxNum) {
   // 请求总数量
   const len = urls.length;

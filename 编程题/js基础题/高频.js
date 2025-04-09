@@ -1,6 +1,7 @@
 
 /**
  * 面试中高频题
+ * 包含各类型问题 集合
  * 部分题目没有具体代码，可以再其他文件中查找到，避免重复出现
  */
 
@@ -96,7 +97,7 @@ function versionSort(arr) {
   //     id: Function
   //   },
   //   key: Object,
-  // } 
+  // }
   // 存储的是注册的回调函数
   constructor() {
     this.eventObj = {}; // 用于存储所有订阅事件
@@ -249,8 +250,8 @@ class LRUCache {
   // 写入
   put(key, value) {
     // key存在，仅修改值
-    if (this.map.has(key)) { 
-      this.map.delete(key) 
+    if (this.map.has(key)) {
+      this.map.delete(key)
     }
     this.map.set(key, value)
     if(this.map.size > this.capacity){
@@ -319,33 +320,9 @@ function render(vnode, container) {
  */
 
 /**
- * 实现高阶函数map
+ * 数组高阶函数的实现
+ * map reduce filter find findIndex some every 等
  */
- Array.prototype.myMap = function(fn) {
-  let arr = Array.prototype.slice.call(this);
-  let mappedArr = Array()
-  for(let i = 0; i < arr.length; i++) {
-    if(!arr.hasownProperty(i)) continue;
-    mappedArr[i] = fn.call(this, arr[i], i, this);
-  }
-  return mappedArr;
-}
-
-// reduce
-Array.prototype.reduce = function(fn, prev) {
-  for(let i = 0; i < this.length; i++) {
-    // 初始值不传时的处理
-    if (typeof prev === 'undefined') {
-      // 明确回调函数的参数都有哪些
-      prev = fn(this[i], this[i+1], i+1, this);
-      ++i;
-    } else {
-      prev = fn(prev, this[i], i, this)
-    }
-  }
-  // 函数的返回结果会作为下一次循环的 prev
-  return prev;
-};
 
 /**
  * 对象拉平
@@ -383,8 +360,6 @@ Array.prototype.reduce = function(fn, prev) {
 
   return res;
 }
-
-
 
 
 // 最长上升子序列
@@ -457,7 +432,7 @@ function parseQuery(source, path, defaultValue = ''){
 function get(o, path, defaultValue) {
   const keys = `${path}`.match(/(\w|\$)+/g)
   if (keys) {
-    return keys.reduce((acc, key) => 
+    return keys.reduce((acc, key) =>
       acc ? (acc[key] === undefined ? (acc[key] = defaultValue) : acc[key]) : (acc[key] = defaultValue)
     , o)
   }

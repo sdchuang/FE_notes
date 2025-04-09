@@ -44,7 +44,7 @@ Promise.prototype.race = function (promiseArr) {
               // 不是Promise实例对象直接返回当前值
               resolve(promise);
           }
-          // 
+          //
           // Promise.resolve(promise).then(res => {
           //     resolve(res)
           // }).catch(err => {
@@ -63,7 +63,7 @@ Promise.prototype.race = function (promiseArr) {
   return new Promise((resolve,reject)=>{
     promises = Array.isArray(promises) ? promises : []
     let len = promises.length
-    // 用于收集所有 reject 
+    // 用于收集所有 reject
     let errs = []
     // 如果传入的是一个空数组，那么就直接返回 AggregateError
     if(len === 0) return reject(new AggregateError('All promises were rejected'))
@@ -98,21 +98,21 @@ Promise.prototype.race = function (promiseArr) {
     promises.forEach((p, i) => {
       Promise.resolve(p).then((res) => {
         count += 1
-        // 成功属性设置 
+        // 成功属性设置
         result[i] = {
           status: 'fulfilled',
           value: res
         }
-        
+
         if (count === len) {
           rs(result)
         }
       }).catch((err) => {
         count += 1
-        // 失败属性设置 
-        result[i] = { 
-          status: 'rejected', 
-          reason: err 
+        // 失败属性设置
+        result[i] = {
+          status: 'rejected',
+          reason: err
         }
 
         if (count === len) {
@@ -122,6 +122,9 @@ Promise.prototype.race = function (promiseArr) {
     })
   })
 }
+
+
+
 
 
 /**
@@ -151,7 +154,7 @@ class MyPromise {
       // 这里之所以使用一个队列来储存回调,是为了实现规范要求的 "then 方法可以被同一个 promise 调用多次"
       // 如果使用一个变量而非队列来储存回调,那么即使多次p1.then()也只会执行一次回调
       // 依次执行
-      while(this._resolveQueue.length) {    
+      while(this._resolveQueue.length) {
         const callback = this._resolveQueue.shift()
         callback(val)
       }
@@ -187,7 +190,7 @@ class MyPromise {
       }
       //把后续then收集的依赖都push进当前Promise的成功回调队列中(_rejectQueue), 这是为了保证顺序调用
       // this._resolveQueue.push(fulfilledFn)
-  
+
       //reject同理
       const rejectedFn  = error => {
         try {
@@ -216,7 +219,7 @@ class MyPromise {
 
     })
   }
-  
+
   //catch方法其实就是执行一下then的第二个回调
   catch(rejectFn) {
     return this.then(undefined, rejectFn)
@@ -241,8 +244,12 @@ class MyPromise {
     return new MyPromise((resolve, reject) => reject(reason))
   }
 
-
 }
+
+
+
+
+
 
 
 /**

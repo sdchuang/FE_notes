@@ -141,5 +141,34 @@ function is(left, right) {
   return left !== left && right !== right;
 }
 
+/**
+ * 实现高阶函数map
+ */
+Array.prototype.myMap = function(fn) {
+  let arr = Array.prototype.slice.call(this);
+  let mappedArr = Array()
+  for(let i = 0; i < arr.length; i++) {
+    if(!arr.hasownProperty(i)) continue;
+    mappedArr[i] = fn.call(this, arr[i], i, this);
+  }
+  return mappedArr;
+}
+
+// reduce
+Array.prototype.reduce = function(fn, prev) {
+  for(let i = 0; i < this.length; i++) {
+    // 初始值不传时的处理
+    if (typeof prev === 'undefined') {
+      // 明确回调函数的参数都有哪些
+      prev = fn(this[i], this[i+1], i+1, this);
+      ++i;
+    } else {
+      prev = fn(prev, this[i], i, this)
+    }
+  }
+  // 函数的返回结果会作为下一次循环的 prev
+  return prev;
+};
+
 
 
