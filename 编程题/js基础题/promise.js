@@ -10,10 +10,10 @@
   let resArr = [], count = 0, len = promiseArr.length;
   // 返回一个新的 Promise 实例
   return new Promise(function (resolve, reject) {
-    for (let promise of promiseArr) {
+    for (let i=0; i<len;i++) {
       // 数组传进来的项可能不是一个Promise实例，使用Promise.resolve方法转换
       Promise.resolve(promise).then(function(res) {
-        resArr[count] = res;
+        resArr[i] = res;
         count++;
         if (count === len) {
           return resolve(resArr);

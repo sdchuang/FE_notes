@@ -109,6 +109,47 @@ function myInstanceof(left, right) {
 
 
 /**
+ * 实现Object.create
+ * 返回值：一个新对象，带着指定的原型对象及其属性。
+ */
+/**
+ * Object.create(proto，[propertiesObject])
+ * proto：新创建对象的原型对象，必须为null或者原始包装对象，否则会抛出异常
+ * propertiesObject：可选参数，需要是一个对象，该传入对象的自有可枚举属性(即其自身定义的属性，而不是其原型链上的枚举属性)将为新创建的对象添加指定的属性值和对应的属性描述符
+ */
+// 第一个参数传递null时，返回的实例原型为null
+// 第一个参数类型只能是object、function或者null，否则报错。
+// 第二个参数类型，不能是null，否则报错
+// 第二个参数如果不为 undefined ,需要将其挂载到实例的  Object.defineProperties 上。
+
+Object.mjy_create = function(proto, defineProperties) {
+  // 参数类型判断
+  if ( typeof proto !== 'object' && typeof proto !== 'function' ) {
+    throw new TypeError(`Object prototype may only be an Object or null: ${proto}`)
+  }
+  if ( defineProperties === null ) {
+    throw new TypeError('Cannot convert undefined or null to object')
+  }
+
+  // 创建一个构造函数
+  function Fn () {}
+  Fn.prototype = proto
+  const obj = new Fn()
+
+  // 如果有新对象设置，使其生效
+  if (propertyObject !== undefined) {
+    Object.defineProperties(obj, propertyObject)
+  }
+  // null值特殊处理
+  if (proto === null) {
+    // 建立一个没有原型对象的对象，Object.create(null)
+    obj.__proto__ = null
+  }
+  return obj
+}
+
+
+/**
  * todo
  * 继承
  */
