@@ -113,39 +113,32 @@ const deepClone = (x) => {
 /**
  * 实现异步请求重试方法 fun(request, times)
  */
-// 终版
-function fun(request, times) {
-  return new Promise((resolve, reject) => {
-    request.then(resolve).catch(err => {
-      if (times > 0) {
-        fun(request, times - 1).then(resolve).catch(reject);
-      } else {
-        reject(err);
-      }
-    });
-  });
-}
-
-// 实现
-function fun (request, times) {
-  return new Promise((resolve, reject) => {
-    let n = times
-    let newReq = function () {
-      request()
-        .then(res => {
-          resolve(res)
+/**
+ * @param task  返回一个promise的异步任务
+ * @param count 需要重试的次数
+ * @param time  每次重试间隔多久
+ * @returns 返回一个新promise
+ */
+const retry = (task, count = 5, time = 3 * 1000) => {
+  return new Promise((_res, _rej) => {
+    let doneCount = 0;
+    const run = () => {
+      task()
+        .then(data => {
+          _res(data);
         })
         .catch(err => {
-          if (--n > 0) {
-            newReq()
+          doneCount++;
+          if (doneCount > count) {
+            _rej(err);
           } else {
-            reject(err)
+            setTimeout(run, time);
           }
-        })
-    }
-    newReq()
-  })
-}
+        });
+    };
+    run();
+  });
+};
 
 
 /**
@@ -332,26 +325,30 @@ const myClearInterval = (id) => {
  * js判断对象是否存在循环引用
  * @param {object} obj 需要判断的对象
  */
-function isCycle(obj) {
-  let seenObjects = [];
-  let detect = function(obj) {
+function hasCycle(obj) {
+  const seenObjects = new WeakSet();
+
+  function detect(obj) {
     if (obj && typeof obj === 'object') {
-      if (seenObjects.indexOf(obj) !== -1) {
-        return true;
+      if (seenObjects.has(obj)) {
+        return true; // 找到循环引用
       }
-      seenObjects.push(obj);
-      for (let key in obj) {
-        if (obj.hasOwnProperty(key) && detect(obj[key])) {
-          return true;
+      seenObjects.add(obj);
+
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          if (detect(obj[key])) {
+            return true;
+          }
         }
       }
     }
-    return false;
-  };
+    return false; // 没有循环引用
+  }
   return detect(obj);
 }
 
-// 另一种写法
+// 另一种写法 由深拷贝改造
 function isCircle (obj, map = new Map()) {
   if(map.has(obj)){
     return true

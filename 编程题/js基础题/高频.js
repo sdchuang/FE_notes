@@ -60,7 +60,7 @@ function treeToList(data){
 /**
  * 版本号排序
  * 有一组版本号如下['0.1.1', '2.3.3', '0.302.1', '4.2', '4.3.5', '4.3.4.5']。
- * 现在需要对其进行排序，排序的结果为 ['4.3.5','4.3.4.5','2.3.3','0.302.1','0.1.1']
+ * 现在需要对其进行排序，排序的结果为 ['4.3.5','4.3.4.5','4.2','2.3.3','0.302.1','0.1.1']
  * @param {*} arr
  */
 function versionSort(arr) {
@@ -89,67 +89,56 @@ function versionSort(arr) {
 /**
  * 发布订阅/eventbus/事件总线
  */
- class EventBus {
-  // 定义所有事件列表,此时需要修改格式：
-  // {
-  //   key: {
-  //     D+id: Function,
-  //     id: Function
-  //   },
-  //   key: Object,
-  // }
-  // 存储的是注册的回调函数
+class EventBus {
   constructor() {
-    this.eventObj = {}; // 用于存储所有订阅事件
-    this.callbcakId = 0; // 每个函数的ID
+    // 事件中心：key=事件名，value=回调数组
+    /**
+     * {
+     *    key: [cb, cb]
+     *    ...
+     * }
+    */
+    this.events = {};
   }
-  // 订阅事件,类似监听事件$on('key',()=>{})
-  $on(name, callbcak) {
-    // 判断是否存储过
-    if (!this.eventObj[name]) {
-      this.eventObj[name] = {};
+
+  // 订阅事件
+  on(eventName, callback) {
+    if (!this.events[eventName]) {
+      this.events[eventName] = [];
     }
-    // 定义当前回调函数id
-    const id = this.callbcakId++;
-    this.eventObj[name][id] = callbcak; // 以键值对的形式存储回调函数
-    return id; // 将id返回出去，可以利用该id取消订阅
+    this.events[eventName].push(callback);
   }
-  // 发布事件,类似于触发事件$emit('key')
-  $emit(name, ...args) {
-    // 获取存储的事件回调函数数组
-    const eventList = this.eventObj[name];
-    // 执行所有回调函数且传入参数
-    for (const id in eventList) {
-      eventList[id](...args);
-      // 如果是订阅一次，则删除
-      if(id.indexOf('D') !== -1) {
-        delete eventList[id];
-      }
-    }
+
+  // 只订阅一次
+  once(eventName, callback) {
+    const fn = (...args) => {
+      callback(...args);
+      this.off(eventName, fn);
+    };
+    this.on(eventName, fn);
   }
-  // 取消订阅函数，类似于$off('key1', id)
-  $off(name, id) {
-    console.log(this.eventObj)
-    // 删除存储在事件列表中的该事件
-    delete this.eventObj[name][id];
-    console.info(`${id}id事件已被取消订阅`)
-    // 如果这是最后一个订阅者，则删除整个对象
-    if (!Object.keys(this.eventObj[name]).length) {
-      delete this.eventObj[name];
-    }
+
+  // 发布/触发事件
+  emit(eventName, ...args) {
+    const callbacks = this.events[eventName];
+    if (!callbacks || callbacks.length === 0) return;
+
+    callbacks.forEach(cb => {
+      cb(...args);
+    });
   }
-  // 订阅事件，只会执行一次，为了方便，id上直接加上一个标识d
-  $once(name, callbcak){
-    // 判断是否存储过
-    if (!this.eventObj[name]) {
-      this.eventObj[name] = {};
-    }
-    // 定义当前回调函数id,添加D则代表只执行一次
-    const id = "D" + this.callbcakId++;
-    this.eventObj[name][id] = callbcak; // 以键值对的形式存储回调函数
-    return id; // 将id返回出去，可以利用该id取消订阅
+
+  // 取消订阅
+  off(eventName, callback) {
+    const callbacks = this.events[eventName];
+    if (!callbacks) return;
+
+    this.events[eventName] = callbacks.filter(cb => cb !== callback);
   }
 }
+
+// 全局单例使用
+export default new EventBus();
 // 初始化EventBus
 let EB = new EventBus();
 
@@ -191,6 +180,20 @@ function add() {
     return res.reduce((a,b) =>a+b);
   }
   return resultFn;
+}
+
+function add(...args) {
+  const sum = args.reduce((a, b) => a + b, 0)
+
+  const fn = (...nextArgs) => {
+    return add(...args, ...nextArgs)
+  }
+
+  // 让函数调用 valueOf 时返回总和
+  fn.valueOf = () => sum
+  fn.toString = () => sum
+
+  return fn
 }
 
 /**
